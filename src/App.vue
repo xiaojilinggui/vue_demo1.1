@@ -20,13 +20,15 @@ export default {
       // beforeEditCache:null,
       // editTodo:null,
       newTodo:'',
-      todos:[{
-        title: '代办一',
-        completed: true,
-      },{
-        title: '代办二',
-        completed: false,
-      }],
+      todos:JSON.parse(window.localStorage.getItem('todos_key') || '[]')
+    }
+  },
+  watch:{
+    todos:{
+      deep:true,
+      handler:function(value){
+        window.localStorage.setItem('todos_key',JSON.stringify(value))
+      }
     }
   },
   methods:{
