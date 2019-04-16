@@ -10,7 +10,111 @@ Vue Create vue_demo1.1
 npm run serve
 ```
 
+[TOC]
+
+
+
+## 知识储备
+
+------
+
+##### :class`**绑定**
+
+我们可以向 `v-bind:class` 传入一个对象，来动态地切换 class：
+
+对象语法`<div v-bind:class="{ active: isActive }"></div>`
+
+上述语法意味着，`active` 这个 class 的存在与否，取决于 `isActive` 这个 data 属性的 [truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) 值。
+
+------
+
+##### **数组语法**
+
+我们可以向 `v-bind:class` 传入一个数组，来与 class 列表对应：
+
+```
+<div v-bind:class="[activeClass, errorClass]"></div>
+```
+
+如果有多个条件 class 时，就会显得有些繁琐。这也就是为什么还可以在数组语法中使用对象语法
+
+------
+
+##### **按键修饰符**
+
+在监听键盘事件时，我们经常需要检查详细的按键。Vue 允许为 `v-on` 在监听键盘事件时添加按键修饰符：
+
+例如 `v-on:keyup.enter` .enter/.tab/.delete/.esc/.space/.up/.dowm/.left/.right
+
+你可以直接将 [`KeyboardEvent.key`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values) 暴露的任意有效按键名转换为 kebab-case 来作为修饰符。
+
+```
+<input v-on:keyup.page-down="onPageDown">
+```
+
+在上述示例中，处理函数只会在 `$event.key` 等于 `PageDown` 时被调用。
+
+------
+
+##### **事件名称**（event names）
+
+你可以直接将 [`KeyboardEvent.key`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values) 暴露的任意有效按键名转换为 kebab-case 来作为修饰符。
+
+```
+<input v-on:keyup.page-down="onPageDown">
+```
+
+在上述示例中，处理函数只会在 `$event.key` 等于 `PageDown` 时被调用。
+
+与 components 和 props 不同，事件名称永远不会用作 JavaScript 变量或属性名称，所以没有理由去使用驼峰式命名(camelCase)或帕斯卡命名(PascalCase)。此外，DOM 模板中的 `v-on` 事件监听器会自动转换为小写（这是因为 HTML 属性名称不区分大小写），所以 `v-on:myEvent` 会变为 `v-on:myevent` - 由此 `myEvent` 就不可能监听到事件触发。
+
+由于这些原因，我们建议你**总是使用串联式命名(kebab-cased)来命名事件名称**。
+
+------
+
+##### **V-model**
+
+在一个组件中，`v-model` 默认使用 `value` 作为 prop，以及默认使用 `input` 作为监听事件，然而，对于某些类型的 input 元素（例如 checkbox 和 radio），由于这些类型的 input 元素本身具有 [不同用法](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#Value)，可能会占用 `value` 特性。在这种情况下，使用组件的 `model` 选项可以避免冲突
+
+```
+Vue.component('base-checkbox', {
+  model: {
+    prop: 'checked',
+    event: 'change'
+  },
+  props: {
+    checked: Boolean
+  },
+  template: `
+    <input
+      type="checkbox"
+      v-bind:checked="checked"
+      v-on:change="$emit('change', $event.target.checked)"
+    >
+  `
+})
+```
+
+------
+
+##### Prop**类型**
+
+通常，你会希望每个 prop 都对应指定类型的值。在这些场景中，你可以将 props 展示为对象，其中每个属性的名称和值，分别包含 prop 名称和类型：
+
+```
+props: {
+  title: String,
+  likes: Number,
+  Click: Function,
+  isPublished: Boolean,
+  commentIds: Array,
+  author: Object
+}
+```
+
 ## NO.1配置文件
+
+------
 
 ![](https://github.com/xiaojilinggui/vue_demo1.1/blob/master/vue%E5%AD%A6%E4%B9%A0%E5%9B%BE%E7%89%87/0.png?raw=true)
 
@@ -27,7 +131,17 @@ npm run serve
 1. 在 Vue.data 中定义 todos，todo 包含 title、completed
 2. 在 templete 中使用 for 绑定 todos 数据进行渲染
 
+
+
 ###### ![](https://github.com/xiaojilinggui/vue_demo1.1/blob/master/vue%E5%AD%A6%E4%B9%A0%E5%9B%BE%E7%89%87/4.png?raw=true)
+
+<u>对于这里关于:key我有查找了一些知识进行补充</u>
+
+<u>key是给每一个vnode的唯一id,可以`依靠key`,更`准确`, 更`快`的拿到oldVnode中对应的vnode节点。</u>
+
+<u>key的作用就是更新组件时**判断两个节点是否相同**。相同就复用，不相同就删除旧的创建新的。</u>
+
+<u>带上唯一key虽然会增加开销，但是对于用户来说基本感受不到差距，而且能保证组件状态正确，这应该就是为什么推荐使用唯一id作为key的原因。</u>
 
 ![](https://github.com/xiaojilinggui/vue_demo1.1/blob/master/vue%E5%AD%A6%E4%B9%A0%E5%9B%BE%E7%89%87/5.png?raw=true)
 
@@ -48,13 +162,7 @@ npm run serve
 4. 为 input 绑定键盘事件与失去焦点事件，当时机出发时设置 editTodo 为 Null 返回原来状态。
 5. 为 input 绑定 ese 取消事件，取 beforeEditCache 的值重设。
 
-
-
-## 	列表修改绑定事件
-
 ![](https://github.com/xiaojilinggui/vue_demo1.1/blob/master/vue%E5%AD%A6%E4%B9%A0%E5%9B%BE%E7%89%87/6.png?raw=true)
-
-## 列表绑定对应的方法
 
 ![](https://github.com/xiaojilinggui/vue_demo1.1/blob/master/vue%E5%AD%A6%E4%B9%A0%E5%9B%BE%E7%89%87/7.png?raw=true)
 
